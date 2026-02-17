@@ -57,9 +57,9 @@ function ChatEntryCard() {
             <MessageSquare className="h-6 w-6 text-muted-foreground group-hover:text-primary" />
           </div>
           <div className="flex-1">
-            <h3 className="font-semibold text-foreground">Chat Corporativo</h3>
+            <h3 className="font-semibold text-foreground">Hub de Comunicacao</h3>
             <p className="text-sm text-muted-foreground">
-              Converse com sua equipe, veja comunicados e use o assistente IA
+              Chat, canais, tarefas, calendario, chamadas e arquivos
             </p>
           </div>
           <div className="text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary">
