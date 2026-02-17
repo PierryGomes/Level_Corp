@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Mail, Phone, MapPin, Clock, Send, CheckCircle2 } from "lucide-react"
+import { Mail, Phone, Clock, Send, CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -10,9 +10,8 @@ import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/landing/footer"
 
 const contactInfo = [
-  { icon: Mail, title: "Email", value: "contato@levelcorp.com", description: "Respondemos em ate 24h uteis." },
-  { icon: Phone, title: "Telefone", value: "+55 (11) 4002-8922", description: "Seg a Sex, 9h as 18h." },
-  { icon: MapPin, title: "Escritorio", value: "Sao Paulo, SP - Brasil", description: "Av. Paulista, 1000 - 15o andar" },
+  { icon: Mail, title: "Email", value: "levelcorp.contato@gmail.com", description: "Respondemos em ate 24h uteis." },
+  { icon: Phone, title: "Telefone / WhatsApp", value: "+55 (11) 95921-3193", description: "Seg a Sex, 9h as 18h." },
   { icon: Clock, title: "Horario", value: "Seg - Sex, 9h - 18h", description: "Fuso horario de Brasilia (GMT-3)." },
 ]
 
@@ -47,7 +46,7 @@ export default function ContatoPage() {
         {/* Contact info cards */}
         <section className="py-8">
           <div className="mx-auto max-w-7xl px-4 lg:px-8">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-3">
               {contactInfo.map((info) => (
                 <div key={info.title} className="rounded-xl border border-border/50 bg-card p-5 text-center">
                   <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">

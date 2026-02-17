@@ -31,7 +31,7 @@ const sections = [
   {
     icon: Shield,
     title: "Conformidade LGPD",
-    content: "A LevelCorp esta em total conformidade com a Lei Geral de Protecao de Dados (Lei 13.709/2018). Nosso DPO (Encarregado de Dados) pode ser contactado atraves do email dpo@levelcorp.com para qualquer questao relacionada a privacidade.",
+    content: "A LevelCorp esta em total conformidade com a Lei Geral de Protecao de Dados (Lei 13.709/2018). Nosso Encarregado de Dados pode ser contactado atraves do email levelcorp.contato@gmail.com para qualquer questao relacionada a privacidade.",
   },
 ]
 
