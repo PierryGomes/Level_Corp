@@ -9,7 +9,7 @@ import {
   PhoneMissed, PhoneOutgoing, Mic, MicOff, VideoOff, Monitor, MoreVertical,
   MessageSquare, Users, CheckSquare, Calendar, Folder, Pin, ChevronDown,
   ChevronRight, Plus, Clock, Grid3X3, List, FileText, ImageIcon, Sheet,
-  Presentation, Archive, FolderOpen, Circle, Grip,
+  Presentation, Archive, FolderOpen, Circle,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"

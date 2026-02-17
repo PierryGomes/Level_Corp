@@ -98,11 +98,71 @@ function StoreEntryCard() {
   )
 }
 
+interface Mission {
+  id: string
+  title: string
+  xp: number
+  coins: number
+  current: number
+  total: number
+  unit: string
+  completed: boolean
+}
+
+const initialMissions: Mission[] = [
+  { id: "m1", title: "Completar curso de lideranca", xp: 300, coins: 75, current: 2, total: 5, unit: "modulos", completed: false },
+  { id: "m2", title: "Participar de 3 reunioes esta semana", xp: 200, coins: 50, current: 1, total: 3, unit: "reunioes", completed: false },
+  { id: "m3", title: "Streak de 5 dias consecutivos", xp: 500, coins: 100, current: 3, total: 5, unit: "dias", completed: false },
+  { id: "m4", title: "Enviar feedback para 2 colegas", xp: 150, coins: 40, current: 0, total: 2, unit: "feedbacks", completed: false },
+  { id: "m5", title: "Visitar todos os departamentos no mapa", xp: 250, coins: 60, current: 2, total: 5, unit: "departamentos", completed: false },
+]
+
 function ColaboradorDashboard({ user }: { user: MockUser }) {
-  const xpPercent = Math.round((user.xp / user.xpToNext) * 100)
+  const [missions, setMissions] = useState<Mission[]>(initialMissions)
+  const [xp, setXp] = useState(user.xp)
+  const [coins, setCoins] = useState(user.coins)
+  const [level, setLevel] = useState(user.level)
+  const [xpToNext, setXpToNext] = useState(user.xpToNext)
+  const [toast, setToast] = useState<string | null>(null)
+  const xpPercent = Math.round((xp / xpToNext) * 100)
+
+  const activeMissions = missions.filter((m) => !m.completed)
+  const completedCount = missions.filter((m) => m.completed).length
+
+  function advanceMission(id: string) {
+    setMissions((prev) =>
+      prev.map((m) => {
+        if (m.id !== id || m.completed) return m
+        const next = m.current + 1
+        if (next >= m.total) {
+          // Complete the mission
+          setXp((x) => {
+            const newXp = x + m.xp
+            if (newXp >= xpToNext) {
+              setLevel((l) => l + 1)
+              setXpToNext((n) => Math.round(n * 1.3))
+            }
+            return newXp
+          })
+          setCoins((c) => c + m.coins)
+          setToast(`Missao completa! +${m.xp} XP +${m.coins} Moedas`)
+          setTimeout(() => setToast(null), 3000)
+          return { ...m, current: next, completed: true }
+        }
+        return { ...m, current: next }
+      })
+    )
+  }
 
   return (
-    <div className="space-y-6">
+    <div className="relative space-y-6">
+      {/* XP Toast */}
+      {toast && (
+        <div className="fixed left-1/2 top-20 z-50 -translate-x-1/2 rounded-full bg-primary px-6 py-2.5 text-sm font-bold text-primary-foreground shadow-2xl animate-in fade-in zoom-in duration-200">
+          {toast}
+        </div>
+      )}
+
       <div className="grid gap-4 sm:grid-cols-3">
         <MapEntryCard />
         <ChatEntryCard />
@@ -116,29 +176,29 @@ function ColaboradorDashboard({ user }: { user: MockUser }) {
               Ola, {user.name.split(" ")[0]}!
             </h2>
             <p className="text-sm text-muted-foreground">
-              Level {user.level} - {user.department}
+              Level {level} - {user.department}
             </p>
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-sm font-semibold text-primary">
               <Star className="h-4 w-4" />
-              {user.xp.toLocaleString()} XP
+              {xp.toLocaleString()} XP
             </div>
             <div className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-sm font-semibold text-foreground">
               <Coins className="h-4 w-4" />
-              {user.coins}
+              {coins}
             </div>
           </div>
         </div>
         <div className="mt-4">
           <div className="mb-1 flex justify-between text-xs text-muted-foreground">
-            <span>Progresso para Level {user.level + 1}</span>
+            <span>Progresso para Level {level + 1}</span>
             <span>{xpPercent}%</span>
           </div>
           <div className="h-3 overflow-hidden rounded-full bg-muted">
             <div
-              className="h-full rounded-full bg-primary transition-all"
-              style={{ width: `${xpPercent}%` }}
+              className="h-full rounded-full bg-primary transition-all duration-500"
+              style={{ width: `${Math.min(xpPercent, 100)}%` }}
             />
           </div>
         </div>
@@ -150,14 +210,14 @@ function ColaboradorDashboard({ user }: { user: MockUser }) {
           <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
             <Target className="h-5 w-5 text-primary" />
           </div>
-          <p className="text-2xl font-bold text-foreground">5</p>
+          <p className="text-2xl font-bold text-foreground">{activeMissions.length}</p>
           <p className="text-sm text-muted-foreground">Missoes Ativas</p>
         </div>
         <div className="rounded-xl border border-border/50 bg-card p-5">
           <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
             <Trophy className="h-5 w-5 text-primary" />
           </div>
-          <p className="text-2xl font-bold text-foreground">12</p>
+          <p className="text-2xl font-bold text-foreground">{12 + completedCount}</p>
           <p className="text-sm text-muted-foreground">Conquistas</p>
         </div>
         <div className="rounded-xl border border-border/50 bg-card p-5">
@@ -173,29 +233,61 @@ function ColaboradorDashboard({ user }: { user: MockUser }) {
       <div className="rounded-xl border border-border/50 bg-card p-6">
         <h3 className="mb-4 text-lg font-semibold text-foreground">Missoes em Andamento</h3>
         <div className="space-y-3">
-          {[
-            { title: "Completar curso de lideranca", xp: 300, coins: 75, progress: "2/5 modulos" },
-            { title: "Participar de 3 reunioes esta semana", xp: 200, coins: 50, progress: "1/3" },
-            { title: "Streak de 5 dias consecutivos", xp: 500, coins: 100, progress: "3/5 dias" },
-          ].map((mission) => (
-            <div
-              key={mission.title}
-              className="flex items-center gap-3 rounded-lg border border-border/50 bg-background p-3"
-            >
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
-                <Zap className="h-4 w-4 text-primary" />
+          {missions.map((mission) => {
+            const percent = Math.round((mission.current / mission.total) * 100)
+            return (
+              <div
+                key={mission.id}
+                className={`rounded-lg border p-3 transition-all ${
+                  mission.completed
+                    ? "border-green-500/30 bg-green-500/5"
+                    : "border-border/50 bg-background"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${
+                    mission.completed ? "bg-green-500/10" : "bg-primary/10"
+                  }`}>
+                    {mission.completed ? (
+                      <Trophy className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <Zap className="h-4 w-4 text-primary" />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <p className={`text-sm font-medium ${mission.completed ? "text-green-600 line-through dark:text-green-400" : "text-foreground"}`}>
+                      {mission.title}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      +{mission.xp} XP | +{mission.coins} Moedas
+                    </p>
+                  </div>
+                  {mission.completed ? (
+                    <span className="rounded-full bg-green-500/10 px-2.5 py-1 text-xs font-bold text-green-600 dark:text-green-400">
+                      Completa!
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => advanceMission(mission.id)}
+                      className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+                    >
+                      {mission.current}/{mission.total} {mission.unit}
+                    </button>
+                  )}
+                </div>
+                {!mission.completed && (
+                  <div className="mt-2 ml-12">
+                    <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                      <div
+                        className="h-full rounded-full bg-primary transition-all duration-500"
+                        style={{ width: `${percent}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-foreground">{mission.title}</p>
-                <p className="text-xs text-muted-foreground">
-                  +{mission.xp} XP | +{mission.coins} Moedas
-                </p>
-              </div>
-              <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
-                {mission.progress}
-              </span>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     </div>

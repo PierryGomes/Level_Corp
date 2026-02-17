@@ -73,6 +73,13 @@ export default function MapaPage() {
         />
       </div>
 
+      {/* Proximity hint (when near NPC but chat not open) */}
+      {nearNpc && !chatNpc && (
+        <div className="absolute bottom-16 left-1/2 z-30 -translate-x-1/2 rounded-full border border-primary/30 bg-card/90 px-4 py-2 text-sm font-medium text-foreground shadow-lg backdrop-blur-sm animate-in fade-in duration-200">
+          <span className="text-primary">{nearNpc.name}</span> esta perto &mdash; pressione <kbd className="mx-1 rounded border border-border bg-muted px-1.5 py-0.5 text-xs font-mono">Enter</kbd> para conversar
+        </div>
+      )}
+
       {/* Proximity chat panel */}
       {chatNpc && (
         <ProximityChat npc={chatNpc} onClose={handleCloseChat} />
