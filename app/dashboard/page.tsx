@@ -16,6 +16,7 @@ import {
   Zap,
   Crown,
   Map,
+  MessageSquare,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -46,12 +47,40 @@ function MapEntryCard() {
   )
 }
 
+function ChatEntryCard() {
+  return (
+    <Link href="/chat">
+      <div className="group relative overflow-hidden rounded-xl border border-border/50 bg-card p-5 transition-all hover:border-primary/30 hover:bg-primary/5">
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted transition-colors group-hover:bg-primary/10">
+            <MessageSquare className="h-6 w-6 text-muted-foreground group-hover:text-primary" />
+          </div>
+          <div className="flex-1">
+            <h3 className="font-semibold text-foreground">Chat Corporativo</h3>
+            <p className="text-sm text-muted-foreground">
+              Converse com sua equipe, veja comunicados e use o assistente IA
+            </p>
+          </div>
+          <div className="text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M7 4l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </Link>
+  )
+}
+
 function ColaboradorDashboard({ user }: { user: MockUser }) {
   const xpPercent = Math.round((user.xp / user.xpToNext) * 100)
 
   return (
     <div className="space-y-6">
-      <MapEntryCard />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <MapEntryCard />
+        <ChatEntryCard />
+      </div>
       {/* Welcome + XP */}
       <div className="rounded-xl border border-border/50 bg-card p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -149,7 +178,10 @@ function ColaboradorDashboard({ user }: { user: MockUser }) {
 function GestorDashboard({ user }: { user: MockUser }) {
   return (
     <div className="space-y-6">
-      <MapEntryCard />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <MapEntryCard />
+        <ChatEntryCard />
+      </div>
       <div className="rounded-xl border border-border/50 bg-card p-6">
         <h2 className="text-xl font-bold text-foreground">
           Painel do Gestor - {user.department}
@@ -216,7 +248,10 @@ function GestorDashboard({ user }: { user: MockUser }) {
 function CeoDashboard({ user }: { user: MockUser }) {
   return (
     <div className="space-y-6">
-      <MapEntryCard />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <MapEntryCard />
+        <ChatEntryCard />
+      </div>
       <div className="rounded-xl border border-border/50 bg-card p-6">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">

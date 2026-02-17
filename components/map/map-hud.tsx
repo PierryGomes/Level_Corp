@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowLeft, Keyboard, Users } from "lucide-react"
+import { ArrowLeft, Keyboard, Users, MessageSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { npcs } from "@/lib/map-data"
@@ -38,6 +38,12 @@ export function MapHud({ userName, userRole }: Props) {
         </div>
 
         <div className="flex items-center gap-2">
+          <Link href="/chat">
+            <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground">
+              <MessageSquare className="h-4 w-4" />
+              <span className="hidden sm:inline">Chat</span>
+            </Button>
+          </Link>
           <div className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 text-xs text-muted-foreground">
             <Users className="h-3.5 w-3.5" />
             <span>{onlineCount} online</span>
@@ -49,13 +55,13 @@ export function MapHud({ userName, userRole }: Props) {
         </div>
       </div>
 
-      {/* Controls hint - bottom left */}
+      {/* Controls hint */}
       <div className="absolute bottom-4 left-4 z-20 flex items-center gap-2 rounded-lg border border-border bg-card/90 px-3 py-2 text-xs text-muted-foreground shadow-lg backdrop-blur-sm">
         <Keyboard className="h-3.5 w-3.5" />
-        <span>WASD ou setas para mover</span>
+        <span>WASD ou setas para mover | Enter para conversar</span>
       </div>
 
-      {/* Legend - top right below bar */}
+      {/* Legend */}
       <div className="absolute right-4 top-[68px] z-20 flex flex-col gap-1.5 rounded-lg border border-border bg-card/90 px-3 py-2.5 text-xs shadow-lg backdrop-blur-sm">
         <span className="mb-0.5 font-semibold text-foreground">Legenda</span>
         <div className="flex items-center gap-2">
