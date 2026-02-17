@@ -8,9 +8,12 @@ import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 
 const navLinks = [
-  { label: "Recursos", href: "#recursos" },
-  { label: "Como Funciona", href: "#como-funciona" },
-  { label: "Contato", href: "#contato" },
+  { label: "Recursos", href: "/#recursos" },
+  { label: "Precos", href: "/precos" },
+  { label: "Integracao", href: "/integracao" },
+  { label: "Sobre", href: "/sobre" },
+  { label: "Blog", href: "/blog" },
+  { label: "Contato", href: "/contato" },
 ]
 
 export function Navbar() {
@@ -32,13 +35,13 @@ export function Navbar() {
 
         <nav className="hidden items-center gap-8 md:flex">
           {navLinks.map((link) => (
-            <a
+            <Link
               key={link.href}
               href={link.href}
               className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </nav>
 
@@ -68,14 +71,14 @@ export function Navbar() {
         <div className="border-t border-border/50 bg-background px-4 pb-4 pt-2 md:hidden">
           <nav className="flex flex-col gap-3">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
                 className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
             <Link href="/login" onClick={() => setMobileOpen(false)}>
               <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">

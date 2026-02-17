@@ -3,21 +3,21 @@ import Link from "next/link"
 
 const footerLinks = {
   Produto: [
-    { label: "Recursos", href: "#recursos" },
-    { label: "Como Funciona", href: "#como-funciona" },
-    { label: "Precos", href: "#" },
-    { label: "Integracao", href: "#" },
+    { label: "Recursos", href: "/#recursos" },
+    { label: "Como Funciona", href: "/#como-funciona" },
+    { label: "Precos", href: "/precos" },
+    { label: "Integracao", href: "/integracao" },
   ],
   Empresa: [
-    { label: "Sobre nos", href: "#" },
-    { label: "Blog", href: "#" },
-    { label: "Carreiras", href: "#" },
-    { label: "Contato", href: "#contato" },
+    { label: "Sobre nos", href: "/sobre" },
+    { label: "Blog", href: "/blog" },
+    { label: "Carreiras", href: "/carreiras" },
+    { label: "Contato", href: "/contato" },
   ],
   Legal: [
-    { label: "Privacidade", href: "#" },
-    { label: "Termos de Uso", href: "#" },
-    { label: "Cookies", href: "#" },
+    { label: "Privacidade", href: "/privacidade" },
+    { label: "Termos de Uso", href: "/termos" },
+    { label: "Cookies", href: "/cookies" },
   ],
 }
 
@@ -50,12 +50,12 @@ export function Footer() {
               <ul className="space-y-2.5">
                 {links.map((link) => (
                   <li key={link.label}>
-                    <a
+                    <Link
                       href={link.href}
                       className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                     >
                       {link.label}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>
