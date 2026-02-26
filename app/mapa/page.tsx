@@ -51,10 +51,11 @@ export default function MapaPage() {
     )
   }
 
+  // Spawn positions for the new LevelCorp map
   const spawnPositions: Record<string, { x: number; y: number }> = {
-    ceo: { x: 32, y: 23 },
-    gestor: { x: 10, y: 6 },
-    colaborador: { x: 10, y: 2 },
+    ceo: { x: 44, y: 30 },       // CEO Office
+    gestor: { x: 32, y: 30 },    // Sala da Lideranca
+    colaborador: { x: 25, y: 14 }, // Praca Central
   }
   const spawn = spawnPositions[user.role] ?? spawnPositions.colaborador
 
