@@ -540,12 +540,13 @@ export default function LojaPage() {
               </Button>
             </Link>
             <Image
-              src="/images/logo.png"
+              src="/images/logo-levelcorp.jpeg"
               alt="LevelCorp"
-              width={140}
-              height={36}
-              className="h-7 w-auto"
+              width={28}
+              height={28}
+              className="h-7 w-7 rounded"
             />
+            <span className="text-sm font-bold text-foreground">LevelCorp</span>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3.5 py-1.5 text-sm font-bold text-primary">

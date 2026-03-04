@@ -58,13 +58,16 @@ export default function LoginPage() {
           </Link>
 
           <div className="mb-8">
-            <Image
-              src="/images/logo.png"
-              alt="LevelCorp"
-              width={160}
-              height={40}
-              className="mb-6 h-9 w-auto"
-            />
+            <div className="mb-6 flex items-center gap-3">
+              <Image
+                src="/images/logo-levelcorp.jpeg"
+                alt="LevelCorp"
+                width={40}
+                height={40}
+                className="h-10 w-10 rounded-xl"
+              />
+              <span className="text-xl font-bold text-foreground">LevelCorp</span>
+            </div>
             <h1 className="text-2xl font-bold tracking-tight text-foreground">
               Bem-vindo de volta
             </h1>

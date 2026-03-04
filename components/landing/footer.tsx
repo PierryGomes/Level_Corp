@@ -29,13 +29,16 @@ export function Footer() {
           {/* Brand */}
           <div className="lg:col-span-2">
             <Link href="/" className="inline-block">
-              <Image
-                src="/images/logo.png"
-                alt="LevelCorp"
-                width={140}
-                height={36}
-                className="h-8 w-auto"
-              />
+              <div className="flex items-center gap-2">
+                <Image
+                  src="/images/logo-levelcorp.jpeg"
+                  alt="LevelCorp"
+                  width={32}
+                  height={32}
+                  className="h-8 w-8 rounded-lg"
+                />
+                <span className="text-lg font-bold text-foreground">LevelCorp</span>
+              </div>
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
               Transformando o engajamento corporativo com gamificacao,

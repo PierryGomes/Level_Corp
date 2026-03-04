@@ -1105,7 +1105,7 @@ export default function ChatPage() {
       {/* Left icon rail */}
       <div className="flex w-16 flex-col items-center border-r border-border/50 bg-card py-4">
         <Link href="/dashboard" className="mb-6">
-          <Image src="/images/logo.png" alt="LevelCorp" width={32} height={32} className="rounded" />
+          <Image src="/images/logo-levelcorp.jpeg" alt="LevelCorp" width={32} height={32} className="rounded-lg" />
         </Link>
         <nav className="flex flex-1 flex-col items-center gap-1">
           {sectionConfig.map((s) => {

@@ -528,12 +528,13 @@ export default function DashboardPage() {
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-8">
           <div className="flex items-center gap-4">
             <Image
-              src="/images/logo.png"
+              src="/images/logo-levelcorp.jpeg"
               alt="LevelCorp"
-              width={140}
-              height={36}
-              className="h-7 w-auto"
+              width={28}
+              height={28}
+              className="h-7 w-7 rounded"
             />
+            <span className="text-sm font-bold text-foreground">LevelCorp</span>
             <span className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
               {roleLabels[user.role]}
             </span>
