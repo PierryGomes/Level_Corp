@@ -24,13 +24,14 @@ export function Navbar() {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-8">
         <Link href="/" className="flex items-center gap-2">
           <Image
-            src="/images/logo.png"
+            src="/images/logo-levelcorp.jpeg"
             alt="LevelCorp"
-            width={160}
+            width={40}
             height={40}
-            className="h-8 w-auto"
+            className="h-10 w-10 rounded-lg"
             priority
           />
+          <span className="text-lg font-bold text-foreground">LevelCorp</span>
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
