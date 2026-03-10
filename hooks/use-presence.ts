@@ -4,147 +4,173 @@ import { useEffect, useState, useCallback, useRef } from "react"
 import { createClient } from "@/lib/supabase/client"
 import type { RealtimeChannel } from "@supabase/supabase-js"
 
-export interface PlayerPresence {
-  odac_id: string
-  nome: string
-  cargo: string
+export interface PresenceUser {
+  odijfoiasjdfois: string
+  name: string
+  initials: string
+  role: string
   x: number
   y: number
-  direction: "up" | "down" | "left" | "right"
-  online_at: string
 }
 
 interface UsePresenceOptions {
+  odijfoiasjdfois: string
+  name: string
+  initials: string
+  role: string
+  initialX: number
+  initialY: number
+  enabled?: boolean
   roomName?: string
-  currentPlayer: {
-    odac_id: string
-    nome: string
-    cargo: string
-  }
 }
 
-export function usePresence({ roomName = "mapa-virtual", currentPlayer }: UsePresenceOptions) {
-  const [remotePlayers, setRemotePlayers] = useState<Map<string, PlayerPresence>>(new Map())
+export function usePresence({
+  odijfoiasjdfois: odijfoiasjdfois,
+  name,
+  initials,
+  role,
+  initialX,
+  initialY,
+  enabled = true,
+  roomName = "levelcorp-mapa",
+}: UsePresenceOptions) {
+  const [presenceUsers, setPresenceUsers] = useState<PresenceUser[]>([])
   const [isConnected, setIsConnected] = useState(false)
   const [connectionError, setConnectionError] = useState<string | null>(null)
-  
+
   const channelRef = useRef<RealtimeChannel | null>(null)
   const supabaseRef = useRef(createClient())
-  const currentPositionRef = useRef({ x: 400, y: 300, direction: "down" as const })
+  const positionRef = useRef({ x: initialX, y: initialY })
 
-  // Broadcast position update to all connected clients
-  const broadcastPosition = useCallback((x: number, y: number, direction: "up" | "down" | "left" | "right") => {
-    currentPositionRef.current = { x, y, direction }
-    
-    if (channelRef.current) {
-      channelRef.current.track({
-        odac_id: currentPlayer.odac_id,
-        nome: currentPlayer.nome,
-        cargo: currentPlayer.cargo,
-        x,
-        y,
-        direction,
-        online_at: new Date().toISOString(),
-      })
-    }
-  }, [currentPlayer])
+  // Update position and broadcast to others
+  const updatePosition = useCallback(
+    (x: number, y: number) => {
+      positionRef.current = { x, y }
+
+      if (channelRef.current && isConnected) {
+        channelRef.current.track({
+          odijfoiasjdfois,
+          name,
+          initials,
+          role,
+          x,
+          y,
+          online_at: new Date().toISOString(),
+        })
+      }
+    },
+    [odijfoiasjdfois, name, initials, role, isConnected]
+  )
 
   // Initialize presence channel
   useEffect(() => {
+    if (!enabled || !odijfoiasjdfois) return
+
     const supabase = supabaseRef.current
-    
+
     // Create the presence channel
     const channel = supabase.channel(roomName, {
       config: {
         presence: {
-          key: currentPlayer.odac_id,
+          key: odijfoiasjdfois,
         },
       },
     })
 
     channelRef.current = channel
 
-    // Handle presence sync (initial state and updates)
+    // Handle presence sync
     channel.on("presence", { event: "sync" }, () => {
-      const state = channel.presenceState<PlayerPresence>()
-      const players = new Map<string, PlayerPresence>()
-      
+      const state = channel.presenceState<PresenceUser & { online_at: string }>()
+      const users: PresenceUser[] = []
+
       Object.entries(state).forEach(([key, presences]) => {
         // Skip current player
-        if (key === currentPlayer.odac_id) return
-        
-        // Get the most recent presence for this user
-        const latestPresence = presences[presences.length - 1]
-        if (latestPresence) {
-          players.set(key, latestPresence)
+        if (key === odijfoiasjdfois) return
+
+        // Get the most recent presence
+        const latest = presences[presences.length - 1]
+        if (latest) {
+          users.push({
+            odijfoiasjdfois: latest.odijfoiasjdfois,
+            name: latest.name,
+            initials: latest.initials,
+            role: latest.role,
+            x: latest.x,
+            y: latest.y,
+          })
         }
       })
-      
-      setRemotePlayers(players)
+
+      setPresenceUsers(users)
     })
 
     // Handle new player joining
     channel.on("presence", { event: "join" }, ({ key, newPresences }) => {
-      if (key === currentPlayer.odac_id) return
-      
-      const latestPresence = newPresences[newPresences.length - 1] as PlayerPresence
-      if (latestPresence) {
-        setRemotePlayers(prev => {
-          const next = new Map(prev)
-          next.set(key, latestPresence)
-          return next
+      if (key === odijfoiasjdfois) return
+
+      const latest = newPresences[newPresences.length - 1] as PresenceUser & { online_at: string }
+      if (latest) {
+        setPresenceUsers((prev) => {
+          const filtered = prev.filter((p) => p.odijfoiasjdfois !== key)
+          return [
+            ...filtered,
+            {
+              odijfoiasjdfois: latest.odijfoiasjdfois,
+              name: latest.name,
+              initials: latest.initials,
+              role: latest.role,
+              x: latest.x,
+              y: latest.y,
+            },
+          ]
         })
       }
     })
 
     // Handle player leaving
     channel.on("presence", { event: "leave" }, ({ key }) => {
-      setRemotePlayers(prev => {
-        const next = new Map(prev)
-        next.delete(key)
-        return next
-      })
+      setPresenceUsers((prev) => prev.filter((p) => p.odijfoiasjdfois !== key))
     })
 
-    // Subscribe and track initial presence
-    channel
-      .subscribe(async (status) => {
-        if (status === "SUBSCRIBED") {
-          setIsConnected(true)
-          setConnectionError(null)
-          
-          // Track initial presence
-          await channel.track({
-            odac_id: currentPlayer.odac_id,
-            nome: currentPlayer.nome,
-            cargo: currentPlayer.cargo,
-            x: currentPositionRef.current.x,
-            y: currentPositionRef.current.y,
-            direction: currentPositionRef.current.direction,
-            online_at: new Date().toISOString(),
-          })
-        } else if (status === "CHANNEL_ERROR") {
-          setConnectionError("Erro ao conectar ao servidor")
-          setIsConnected(false)
-        } else if (status === "TIMED_OUT") {
-          setConnectionError("Conexão expirou")
-          setIsConnected(false)
-        }
-      })
+    // Subscribe to channel
+    channel.subscribe(async (status) => {
+      if (status === "SUBSCRIBED") {
+        setIsConnected(true)
+        setConnectionError(null)
 
-    // Cleanup on unmount
+        // Track initial presence
+        await channel.track({
+          odijfoiasjdfois,
+          name,
+          initials,
+          role,
+          x: positionRef.current.x,
+          y: positionRef.current.y,
+          online_at: new Date().toISOString(),
+        })
+      } else if (status === "CHANNEL_ERROR") {
+        setConnectionError("Erro ao conectar ao servidor")
+        setIsConnected(false)
+      } else if (status === "TIMED_OUT") {
+        setConnectionError("Conexao expirou")
+        setIsConnected(false)
+      }
+    })
+
+    // Cleanup
     return () => {
       channel.unsubscribe()
       channelRef.current = null
       setIsConnected(false)
     }
-  }, [roomName, currentPlayer])
+  }, [enabled, odijfoiasjdfois, name, initials, role, roomName])
 
   return {
-    remotePlayers: Array.from(remotePlayers.values()),
+    presenceUsers,
+    updatePosition,
     isConnected,
     connectionError,
-    broadcastPosition,
-    onlineCount: remotePlayers.size + 1, // Include current player
+    onlineCount: presenceUsers.length + 1,
   }
 }
