@@ -151,7 +151,7 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          {{/* Create account link */}
+          {/* Create account link */}
           <p className="mt-6 text-center text-sm text-muted-foreground">
             Nao tem uma conta?{" "}
             <Link href="/registro" className="font-medium text-primary hover:underline">
