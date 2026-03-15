@@ -151,8 +151,16 @@ export default function LoginPage() {
             </Button>
           </form>
 
+          {{/* Create account link */}
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            Nao tem uma conta?{" "}
+            <Link href="/registro" className="font-medium text-primary hover:underline">
+              Criar conta
+            </Link>
+          </p>
+
           {/* Demo credentials */}
-          <div className="mt-8 rounded-xl border border-border/50 bg-card p-4">
+          <div className="mt-6 rounded-xl border border-border/50 bg-card p-4">
             <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Contas de demonstracao
             </p>
