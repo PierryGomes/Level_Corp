@@ -149,29 +149,30 @@ export async function POST(request: NextRequest) {
     console.log(`Token expires at: ${expiresAt.toISOString()}`)
     console.log("==============================")
 
-    // Send email
-    if (process.env.GMAIL_APP_PASSWORD) {
+    // Try to send email only if GMAIL_APP_PASSWORD is properly configured
+    let emailSent = false
+    const gmailPassword = process.env.GMAIL_APP_PASSWORD
+
+    if (gmailPassword && gmailPassword.length >= 16) {
       try {
         await sendResetEmail(user.email, user.full_name, resetUrl)
         console.log("Email sent successfully to:", user.email)
+        emailSent = true
       } catch (emailError) {
         console.error("Failed to send email:", emailError)
-        // Don't fail the request if email fails - user can request again
+        // Email failed - will show link directly to user
+        emailSent = false
       }
     } else {
-      console.log("GMAIL_APP_PASSWORD not configured - email not sent")
-      console.log("Set GMAIL_APP_PASSWORD environment variable to enable email sending")
+      console.log("GMAIL_APP_PASSWORD not configured or invalid - showing link directly")
     }
-
-    // Check if email was actually sent
-    const emailSent = !!process.env.GMAIL_APP_PASSWORD
 
     return NextResponse.json({
       success: true,
       message: emailSent 
         ? "Se o email existir em nossa base, voce recebera um link de recuperacao"
         : "Link de recuperacao gerado com sucesso",
-      // Always include reset URL if email wasn't sent (no GMAIL_APP_PASSWORD configured)
+      // Include reset URL if email wasn't sent successfully
       ...(!emailSent && { resetUrl }),
       emailSent,
     })
