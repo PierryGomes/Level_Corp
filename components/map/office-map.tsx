@@ -28,6 +28,7 @@ interface Props {
   onEnterChat?: (npc: NPC) => void
   remotePlayers?: RemotePlayer[]
   onPositionChange?: (x: number, y: number) => void
+  showNpcs?: boolean // Controls whether NPCs are shown (true for demo, false for real companies)
 }
 
 // ── Performance glow colors ──
@@ -57,7 +58,7 @@ const speechSnippets: Record<string, string[]> = {
   "fin_mgr": ["Conciliacao ok!", "Budget aprovado!", "ROI positivo!"],
 }
 
-export function OfficeMap({ playerName, playerInitials, playerRole, startTileX = 10, startTileY = 2, onNpcProximity, onEnterChat, remotePlayers = [], onPositionChange }: Props) {
+export function OfficeMap({ playerName, playerInitials, playerRole, startTileX = 10, startTileY = 2, onNpcProximity, onEnterChat, remotePlayers = [], onPositionChange, showNpcs = true }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const wrapRef = useRef<HTMLDivElement>(null)
   const { resolvedTheme } = useTheme()
@@ -443,9 +444,18 @@ export function OfficeMap({ playerName, playerInitials, playerRole, startTileX =
       ctx.strokeRect(mx + room.x * sx, my + room.y * sy, room.w * sx, room.h * sy)
     }
 
-    for (const npc of npcs) {
-      ctx.fillStyle = npc.isCeo ? "#EAB308" : npc.isManager ? "#8B5CF6" : "#3B82F6"
-      ctx.beginPath(); ctx.arc(mx + npc.tileX * sx, my + npc.tileY * sy, 2, 0, Math.PI * 2); ctx.fill()
+    // Only draw NPCs on minimap in demo mode
+    if (showNpcs) {
+      for (const npc of npcs) {
+        ctx.fillStyle = npc.isCeo ? "#EAB308" : npc.isManager ? "#8B5CF6" : "#3B82F6"
+        ctx.beginPath(); ctx.arc(mx + npc.tileX * sx, my + npc.tileY * sy, 2, 0, Math.PI * 2); ctx.fill()
+      }
+    }
+
+    // Draw remote players on minimap
+    for (const player of remotePlayers) {
+      ctx.fillStyle = player.role === "ceo" ? "#EAB308" : player.role === "gestor" ? "#8B5CF6" : "#3B82F6"
+      ctx.beginPath(); ctx.arc(mx + player.x * sx, my + player.y * sy, 2.5, 0, Math.PI * 2); ctx.fill()
     }
 
     const pos = posRef.current
@@ -458,7 +468,7 @@ export function OfficeMap({ playerName, playerInitials, playerRole, startTileX =
     ctx.strokeStyle = "rgba(234,179,8,0.6)"
     ctx.lineWidth = 1
     ctx.strokeRect(mx + (cam.x / TILE) * sx, my + (cam.y / TILE) * sy, (sz.w / TILE) * sx, (sz.h / TILE) * sy)
-  }, [dark])
+  }, [dark, showNpcs, remotePlayers])
 
   // ── Game loop ──
   useEffect(() => {
@@ -510,18 +520,24 @@ export function OfficeMap({ playerName, playerInitials, playerRole, startTileX =
       cam.x = Math.max(0, Math.min(MAP_W - w, cam.x))
       cam.y = Math.max(0, Math.min(MAP_H - h, cam.y))
 
-      const near = getNpcNear(tgt.x, tgt.y, 2)
-      nearNpcRef.current = near
-      if (near) {
-        setHoveredNpc(near)
-        setPopupPos({
-          x: near.tileX * TILE - cam.x + TILE / 2,
-          y: near.tileY * TILE - cam.y - 30,
-        })
-        onNpcProximity?.(near)
+      // Only check NPC proximity in demo mode
+      if (showNpcs) {
+        const near = getNpcNear(tgt.x, tgt.y, 2)
+        nearNpcRef.current = near
+        if (near) {
+          setHoveredNpc(near)
+          setPopupPos({
+            x: near.tileX * TILE - cam.x + TILE / 2,
+            y: near.tileY * TILE - cam.y - 30,
+          })
+          onNpcProximity?.(near)
+        } else {
+          setHoveredNpc(null)
+          onNpcProximity?.(null)
+        }
       } else {
+        nearNpcRef.current = null
         setHoveredNpc(null)
-        onNpcProximity?.(null)
       }
 
       const roomsAtPlayer = rooms.find(
@@ -533,7 +549,10 @@ export function OfficeMap({ playerName, playerInitials, playerRole, startTileX =
       ctx.save()
       drawFloor(ctx, cam.x, cam.y)
       drawFurniture(ctx, cam.x, cam.y)
-      drawNpcs(ctx, cam.x, cam.y, time)
+      // Only draw NPCs in demo mode
+      if (showNpcs) {
+        drawNpcs(ctx, cam.x, cam.y, time)
+      }
       drawRemotePlayers(ctx, cam.x, cam.y, time)
       drawPlayer(ctx, cam.x, cam.y, time)
       ctx.restore()
@@ -544,7 +563,7 @@ export function OfficeMap({ playerName, playerInitials, playerRole, startTileX =
 
     animId = requestAnimationFrame(loop)
     return () => cancelAnimationFrame(animId)
-  }, [drawFloor, drawFurniture, drawNpcs, drawRemotePlayers, drawPlayer, drawMinimap, onNpcProximity, onPositionChange])
+  }, [drawFloor, drawFurniture, drawNpcs, drawRemotePlayers, drawPlayer, drawMinimap, onNpcProximity, onPositionChange, showNpcs])
 
   return (
     <div ref={wrapRef} className="relative h-full w-full overflow-hidden bg-background" tabIndex={0}>

@@ -21,6 +21,7 @@ interface UsePresenceOptions {
   initialX: number
   initialY: number
   enabled?: boolean
+  companyId?: string // Company ID for multi-tenant isolation
   roomName?: string
 }
 
@@ -32,8 +33,13 @@ export function usePresence({
   initialX,
   initialY,
   enabled = true,
-  roomName = "levelcorp-mapa",
+  companyId,
+  roomName,
 }: UsePresenceOptions) {
+  // Create room name based on company ID for multi-tenant isolation
+  // Demo accounts use shared "levelcorp-demo" room
+  // Real companies use isolated "levelcorp-company-{companyId}" room
+  const effectiveRoomName = roomName ?? (companyId ? `levelcorp-company-${companyId}` : "levelcorp-demo")
   const [presenceUsers, setPresenceUsers] = useState<PresenceUser[]>([])
   const [isConnected, setIsConnected] = useState(false)
   const [connectionError, setConnectionError] = useState<string | null>(null)
@@ -68,8 +74,8 @@ export function usePresence({
 
     const supabase = supabaseRef.current
 
-    // Create the presence channel
-    const channel = supabase.channel(roomName, {
+    // Create the presence channel with company isolation
+    const channel = supabase.channel(effectiveRoomName, {
       config: {
         presence: {
           key: odijfoiasjdfois,
@@ -164,7 +170,7 @@ export function usePresence({
       channelRef.current = null
       setIsConnected(false)
     }
-  }, [enabled, odijfoiasjdfois, name, initials, role, roomName])
+  }, [enabled, odijfoiasjdfois, name, initials, role, effectiveRoomName])
 
   return {
     presenceUsers,
