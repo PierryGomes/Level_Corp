@@ -18,6 +18,8 @@ import {
   Map,
   MessageSquare,
   ShoppingBag,
+  UserPlus,
+  Settings,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -297,6 +299,28 @@ function ColaboradorDashboard({ user }: { user: MockUser }) {
 function GestorDashboard({ user }: { user: MockUser }) {
   return (
     <div className="space-y-6">
+      {/* Admin Quick Access for Managers */}
+      <Link href="/admin">
+        <div className="group relative overflow-hidden rounded-xl border border-purple-500/30 bg-gradient-to-br from-purple-500/10 to-purple-500/5 p-5 transition-all hover:border-purple-500/50 hover:from-purple-500/15 hover:to-purple-500/10">
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/20 transition-colors group-hover:bg-purple-500/30">
+              <Settings className="h-6 w-6 text-purple-500" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-foreground">Gerenciar Equipe</h3>
+              <p className="text-sm text-muted-foreground">
+                Convide colaboradores e gerencie seu departamento
+              </p>
+            </div>
+            <div className="text-purple-500 transition-transform group-hover:translate-x-1">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M7 4l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </Link>
+
       <div className="grid gap-4 sm:grid-cols-3">
         <MapEntryCard />
         <ChatEntryCard />
@@ -365,9 +389,37 @@ function GestorDashboard({ user }: { user: MockUser }) {
   )
 }
 
+function AdminQuickAccessCard() {
+  return (
+    <Link href="/admin">
+      <div className="group relative overflow-hidden rounded-xl border border-primary/30 bg-gradient-to-br from-primary/10 to-primary/5 p-5 transition-all hover:border-primary/50 hover:from-primary/15 hover:to-primary/10">
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20 transition-colors group-hover:bg-primary/30">
+            <Crown className="h-6 w-6 text-primary" />
+          </div>
+          <div className="flex-1">
+            <h3 className="font-semibold text-foreground">Painel Administrativo</h3>
+            <p className="text-sm text-muted-foreground">
+              Gerencie equipe, departamentos e convites
+            </p>
+          </div>
+          <div className="text-primary transition-transform group-hover:translate-x-1">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M7 4l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </Link>
+  )
+}
+
 function CeoDashboard({ user }: { user: MockUser }) {
   return (
     <div className="space-y-6">
+      {/* Admin Quick Access - Highlighted for CEOs */}
+      <AdminQuickAccessCard />
+
       <div className="grid gap-4 sm:grid-cols-3">
         <MapEntryCard />
         <ChatEntryCard />
