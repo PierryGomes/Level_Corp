@@ -13,7 +13,8 @@ export default function EsqueciSenhaPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [error, setError] = useState("")
-  const [devResetUrl, setDevResetUrl] = useState("")
+  const [resetUrl, setResetUrl] = useState("")
+  const [emailSent, setEmailSent] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -34,10 +35,11 @@ export default function EsqueciSenhaPage() {
       }
 
       setIsSubmitted(true)
+      setEmailSent(data.emailSent || false)
       
-      // In development, show the reset URL for testing
+      // Show reset URL if email wasn't sent
       if (data.resetUrl) {
-        setDevResetUrl(data.resetUrl)
+        setResetUrl(data.resetUrl)
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao enviar email")
@@ -158,27 +160,44 @@ export default function EsqueciSenhaPage() {
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-foreground">Email enviado!</h2>
+                <h2 className="text-2xl font-bold text-foreground">
+                  {emailSent ? "Email enviado!" : "Link gerado!"}
+                </h2>
                 <p className="mt-2 text-muted-foreground">
-                  Se o email <strong className="text-foreground">{email}</strong> estiver 
-                  cadastrado, voce recebera um link para redefinir sua senha.
+                  {emailSent ? (
+                    <>
+                      Se o email <strong className="text-foreground">{email}</strong> estiver 
+                      cadastrado, voce recebera um link para redefinir sua senha.
+                    </>
+                  ) : (
+                    <>
+                      Use o link abaixo para redefinir a senha da conta{" "}
+                      <strong className="text-foreground">{email}</strong>
+                    </>
+                  )}
                 </p>
               </div>
 
-              <div className="p-4 rounded-lg bg-muted/50 border border-border text-sm text-muted-foreground">
-                <p>Nao recebeu o email? Verifique sua pasta de spam ou aguarde alguns minutos.</p>
-              </div>
+              {emailSent && (
+                <div className="p-4 rounded-lg bg-muted/50 border border-border text-sm text-muted-foreground">
+                  <p>Nao recebeu o email? Verifique sua pasta de spam ou aguarde alguns minutos.</p>
+                </div>
+              )}
 
-              {/* Development only - show reset URL for testing */}
-              {devResetUrl && (
-                <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20 text-sm">
-                  <p className="font-medium text-amber-600 mb-2">Modo desenvolvimento:</p>
+              {resetUrl && (
+                <div className="p-4 rounded-lg bg-primary/10 border border-primary/20 text-sm space-y-3">
+                  <p className="font-medium text-foreground">Clique no botao abaixo para redefinir sua senha:</p>
                   <a 
-                    href={devResetUrl} 
-                    className="text-primary hover:underline break-all"
+                    href={resetUrl} 
+                    className="block w-full"
                   >
-                    {devResetUrl}
+                    <Button className="w-full">
+                      Redefinir minha senha
+                    </Button>
                   </a>
+                  <p className="text-xs text-muted-foreground text-center">
+                    Este link expira em 1 hora
+                  </p>
                 </div>
               )}
 
@@ -189,7 +208,8 @@ export default function EsqueciSenhaPage() {
                   onClick={() => {
                     setIsSubmitted(false)
                     setEmail("")
-                    setDevResetUrl("")
+                    setResetUrl("")
+                    setEmailSent(false)
                   }}
                 >
                   Tentar outro email

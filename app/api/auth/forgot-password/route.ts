@@ -163,11 +163,17 @@ export async function POST(request: NextRequest) {
       console.log("Set GMAIL_APP_PASSWORD environment variable to enable email sending")
     }
 
+    // Check if email was actually sent
+    const emailSent = !!process.env.GMAIL_APP_PASSWORD
+
     return NextResponse.json({
       success: true,
-      message: "Se o email existir em nossa base, voce recebera um link de recuperacao",
-      // Include reset URL in development for testing
-      ...(process.env.NODE_ENV === "development" && { resetUrl }),
+      message: emailSent 
+        ? "Se o email existir em nossa base, voce recebera um link de recuperacao"
+        : "Link de recuperacao gerado com sucesso",
+      // Always include reset URL if email wasn't sent (no GMAIL_APP_PASSWORD configured)
+      ...(!emailSent && { resetUrl }),
+      emailSent,
     })
 
   } catch (error) {
