@@ -1,150 +1,19 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
+import { Building2, Users, Mail, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Building2, Mail, User, Calendar, Briefcase, Loader2, CheckCircle2, AlertCircle } from "lucide-react"
-
-const departments = [
-  "Engenharia",
-  "Produto",
-  "Design",
-  "Marketing",
-  "Vendas",
-  "Recursos Humanos",
-  "Financeiro",
-  "Operações",
-  "Suporte",
-  "Jurídico",
-  "Administrativo",
-  "Outro",
-]
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export default function RegistroPage() {
-  const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
-  const [success, setSuccess] = useState(false)
-
-  const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    company: "",
-    department: "",
-    birthDate: "",
-    acceptedTerms: false,
-  })
-
-  const handleChange = (field: string, value: string | boolean) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-    setError("")
-  }
-
-  const validateForm = () => {
-    if (!formData.fullName.trim()) {
-      setError("Nome completo é obrigatório")
-      return false
-    }
-    if (!formData.email.trim()) {
-      setError("Email é obrigatório")
-      return false
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(formData.email)) {
-      setError("Email inválido")
-      return false
-    }
-    if (!formData.company.trim()) {
-      setError("Empresa é obrigatória")
-      return false
-    }
-    if (!formData.department) {
-      setError("Departamento é obrigatório")
-      return false
-    }
-    if (!formData.birthDate) {
-      setError("Data de nascimento é obrigatória")
-      return false
-    }
-    if (!formData.acceptedTerms) {
-      setError("Você deve aceitar os termos de uso")
-      return false
-    }
-    return true
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-
-    if (!validateForm()) return
-
-    setIsLoading(true)
-
-    try {
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        setError(data.error || "Erro ao criar conta")
-        setIsLoading(false)
-        return
-      }
-
-      // Success
-      setSuccess(true)
-
-      // Store user data temporarily for avatar creation
-      localStorage.setItem("levelcorp_pending_user", JSON.stringify(data.user))
-
-      // Redirect to avatar creation after 1.5s
-      setTimeout(() => {
-        router.push("/avatar")
-      }, 1500)
-    } catch {
-      setError("Erro de conexão. Tente novamente.")
-      setIsLoading(false)
-    }
-  }
-
-  if (success) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background p-4">
-        <div className="w-full max-w-md text-center">
-          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-500/10">
-            <CheckCircle2 className="h-10 w-10 text-green-500" />
-          </div>
-          <h1 className="mb-2 text-2xl font-bold text-foreground">Conta criada com sucesso!</h1>
-          <p className="mb-6 text-muted-foreground">
-            Redirecionando para criação do seu avatar...
-          </p>
-          <div className="flex justify-center">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="flex min-h-screen bg-background">
+      {/* Theme toggle */}
+      <div className="absolute right-4 top-4 z-10">
+        <ThemeToggle />
+      </div>
+
       {/* Left side - Branding */}
       <div className="hidden w-1/2 flex-col justify-between bg-gradient-to-br from-primary/20 via-primary/10 to-background p-12 lg:flex">
         <div className="flex items-center gap-3">
@@ -160,11 +29,11 @@ export default function RegistroPage() {
 
         <div className="max-w-md">
           <h1 className="mb-4 text-4xl font-bold leading-tight text-foreground">
-            Seu escritório virtual gamificado
+            Seu escritorio virtual gamificado
           </h1>
           <p className="text-lg text-muted-foreground">
             Conecte-se com sua equipe em um ambiente virtual interativo. 
-            Participe de reuniões, colabore em projetos e ganhe recompensas 
+            Participe de reunioes, colabore em projetos e ganhe recompensas 
             por suas conquistas.
           </p>
 
@@ -174,37 +43,37 @@ export default function RegistroPage() {
                 <Building2 className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <p className="font-medium text-foreground">Escritório Virtual</p>
+                <p className="font-medium text-foreground">Escritorio Virtual</p>
                 <p className="text-sm text-muted-foreground">Explore ambientes interativos</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20">
-                <User className="h-5 w-5 text-primary" />
+                <Users className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <p className="font-medium text-foreground">Avatar Personalizado</p>
-                <p className="text-sm text-muted-foreground">Crie sua identidade virtual</p>
+                <p className="font-medium text-foreground">Colaboracao em Tempo Real</p>
+                <p className="text-sm text-muted-foreground">Trabalhe junto com sua equipe</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20">
-                <Briefcase className="h-5 w-5 text-primary" />
+                <Mail className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <p className="font-medium text-foreground">Gamificação</p>
-                <p className="text-sm text-muted-foreground">Ganhe XP e suba de nível</p>
+                <p className="font-medium text-foreground">Sistema de Convites</p>
+                <p className="text-sm text-muted-foreground">Convide sua equipe facilmente</p>
               </div>
             </div>
           </div>
         </div>
 
         <p className="text-sm text-muted-foreground">
-          © 2026 LevelCorp. Todos os direitos reservados.
+          2026 LevelCorp. Todos os direitos reservados.
         </p>
       </div>
 
-      {/* Right side - Form */}
+      {/* Right side - Options */}
       <div className="flex w-full items-center justify-center p-6 lg:w-1/2 lg:p-12">
         <div className="w-full max-w-md">
           {/* Mobile logo */}
@@ -219,166 +88,93 @@ export default function RegistroPage() {
             <span className="text-xl font-bold text-foreground">LevelCorp</span>
           </div>
 
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-foreground">Criar conta</h2>
+          <div className="mb-8 text-center lg:text-left">
+            <h2 className="text-2xl font-bold text-foreground">Comece agora</h2>
             <p className="mt-2 text-muted-foreground">
-              Preencha os dados abaixo para entrar no escritório virtual
+              Escolha como deseja entrar na plataforma
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Error message */}
-            {error && (
-              <div className="flex items-center gap-2 rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
-                <AlertCircle className="h-4 w-4 shrink-0" />
-                <span>{error}</span>
-              </div>
-            )}
-
-            {/* Full name */}
-            <div className="space-y-2">
-              <Label htmlFor="fullName" className="text-foreground">Nome completo</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="fullName"
-                  type="text"
-                  placeholder="João Silva"
-                  value={formData.fullName}
-                  onChange={(e) => handleChange("fullName", e.target.value)}
-                  className="pl-10"
-                  disabled={isLoading}
-                />
-              </div>
-            </div>
-
-            {/* Email */}
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-foreground">Email corporativo</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="joao@empresa.com"
-                  value={formData.email}
-                  onChange={(e) => handleChange("email", e.target.value)}
-                  className="pl-10"
-                  disabled={isLoading}
-                />
-              </div>
-            </div>
-
-            {/* Company */}
-            <div className="space-y-2">
-              <Label htmlFor="company" className="text-foreground">Empresa</Label>
-              <div className="relative">
-                <Building2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="company"
-                  type="text"
-                  placeholder="Nome da empresa"
-                  value={formData.company}
-                  onChange={(e) => handleChange("company", e.target.value)}
-                  className="pl-10"
-                  disabled={isLoading}
-                />
-              </div>
-            </div>
-
-            {/* Department */}
-            <div className="space-y-2">
-              <Label htmlFor="department" className="text-foreground">Departamento</Label>
-              <Select
-                value={formData.department}
-                onValueChange={(value) => handleChange("department", value)}
-                disabled={isLoading}
-              >
-                <SelectTrigger className="w-full">
-                  <div className="flex items-center gap-2">
-                    <Briefcase className="h-4 w-4 text-muted-foreground" />
-                    <SelectValue placeholder="Selecione seu departamento" />
+          <div className="space-y-4">
+            {/* Create workspace option */}
+            <Link href="/criar-workspace" className="block">
+              <div className="group rounded-xl border border-border bg-card p-6 transition-all hover:border-primary hover:shadow-lg">
+                <div className="flex items-start gap-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 transition-colors group-hover:bg-primary/20">
+                    <Building2 className="h-6 w-6 text-primary" />
                   </div>
-                </SelectTrigger>
-                <SelectContent>
-                  {departments.map((dept) => (
-                    <SelectItem key={dept} value={dept}>
-                      {dept}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold text-foreground">Criar workspace da empresa</h3>
+                      <ArrowRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
+                    </div>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Crie um novo ambiente para sua empresa e convide colaboradores
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+                        CEO / Admin
+                      </span>
+                      <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+                        Novo ambiente
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Link>
 
-            {/* Birth date */}
-            <div className="space-y-2">
-              <Label htmlFor="birthDate" className="text-foreground">Data de nascimento</Label>
-              <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="birthDate"
-                  type="date"
-                  value={formData.birthDate}
-                  onChange={(e) => handleChange("birthDate", e.target.value)}
-                  className="pl-10"
-                  disabled={isLoading}
-                  max={new Date().toISOString().split("T")[0]}
-                />
+            {/* Join with invite option */}
+            <div className="rounded-xl border border-border bg-card p-6">
+              <div className="flex items-start gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent/50">
+                  <Mail className="h-6 w-6 text-accent-foreground" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-foreground">Entrar com convite</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Recebeu um convite? Clique no link enviado por email para entrar na empresa
+                  </p>
+                  <div className="mt-3">
+                    <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+                      Colaborador / Gestor
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Terms checkbox */}
-            <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/30 p-4">
-              <Checkbox
-                id="terms"
-                checked={formData.acceptedTerms}
-                onCheckedChange={(checked) => handleChange("acceptedTerms", checked as boolean)}
-                disabled={isLoading}
-                className="mt-0.5"
-              />
-              <div className="text-sm">
-                <Label htmlFor="terms" className="cursor-pointer text-foreground">
-                  Aceito os termos de uso
-                </Label>
-                <p className="mt-1 text-muted-foreground">
-                  Ao criar uma conta, você concorda com nossos{" "}
-                  <Link href="/termos" className="text-primary hover:underline">
-                    Termos de Uso
-                  </Link>{" "}
-                  e{" "}
-                  <Link href="/privacidade" className="text-primary hover:underline">
-                    Política de Privacidade
-                  </Link>
-                  .
-                </p>
+            {/* Divider */}
+            <div className="relative py-4">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">ou</span>
               </div>
             </div>
 
-            {/* Submit button */}
-            <Button
-              type="submit"
-              className="w-full"
-              size="lg"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Criando conta...
-                </>
-              ) : (
-                "Criar conta"
-              )}
-            </Button>
+            {/* Demo access */}
+            <div className="rounded-xl border border-dashed border-border bg-muted/30 p-6">
+              <h3 className="mb-2 font-semibold text-foreground">Acesso de demonstracao</h3>
+              <p className="mb-4 text-sm text-muted-foreground">
+                Quer conhecer a plataforma? Use nossas contas de teste para explorar todas as funcionalidades.
+              </p>
+              <Button variant="outline" className="w-full" asChild>
+                <Link href="/login">
+                  Acessar com conta de teste
+                </Link>
+              </Button>
+            </div>
+          </div>
 
-            {/* Login link */}
-            <p className="text-center text-sm text-muted-foreground">
-              Já tem uma conta?{" "}
-              <Link href="/login" className="font-medium text-primary hover:underline">
-                Fazer login
-              </Link>
-            </p>
-          </form>
+          {/* Login link */}
+          <p className="mt-8 text-center text-sm text-muted-foreground">
+            Ja tem uma conta?{" "}
+            <Link href="/login" className="font-medium text-primary hover:underline">
+              Fazer login
+            </Link>
+          </p>
         </div>
       </div>
     </div>

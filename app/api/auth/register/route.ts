@@ -1,15 +1,16 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextRequest, NextResponse } from "next/server"
+import bcrypt from "bcryptjs"
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { fullName, email, company, department, birthDate, acceptedTerms } = body
+    const { fullName, email, password, birthDate, acceptedTerms, companyId, departmentId, role } = body
 
     // Validation
-    if (!fullName || !email || !company || !department || !birthDate) {
+    if (!fullName || !email || !password || !birthDate) {
       return NextResponse.json(
-        { error: "Todos os campos são obrigatórios" },
+        { error: "Todos os campos obrigatorios devem ser preenchidos" },
         { status: 400 }
       )
     }
@@ -18,7 +19,15 @@ export async function POST(request: NextRequest) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
       return NextResponse.json(
-        { error: "Email inválido" },
+        { error: "Email invalido" },
+        { status: 400 }
+      )
+    }
+
+    // Password validation
+    if (password.length < 6) {
+      return NextResponse.json(
+        { error: "A senha deve ter pelo menos 6 caracteres" },
         { status: 400 }
       )
     }
@@ -26,7 +35,7 @@ export async function POST(request: NextRequest) {
     // Terms validation
     if (!acceptedTerms) {
       return NextResponse.json(
-        { error: "Você deve aceitar os termos de uso" },
+        { error: "Voce deve aceitar os termos de uso" },
         { status: 400 }
       )
     }
@@ -37,7 +46,15 @@ export async function POST(request: NextRequest) {
     const age = today.getFullYear() - birthDateObj.getFullYear()
     if (age < 16) {
       return NextResponse.json(
-        { error: "Você deve ter pelo menos 16 anos" },
+        { error: "Voce deve ter pelo menos 16 anos" },
+        { status: 400 }
+      )
+    }
+
+    // Company ID is required for new multi-tenant system
+    if (!companyId) {
+      return NextResponse.json(
+        { error: "ID da empresa e obrigatorio. Use /criar-workspace para criar uma nova empresa." },
         { status: 400 }
       )
     }
@@ -53,10 +70,27 @@ export async function POST(request: NextRequest) {
 
     if (existingUser) {
       return NextResponse.json(
-        { error: "Este email já está cadastrado" },
+        { error: "Este email ja esta cadastrado" },
         { status: 409 }
       )
     }
+
+    // Verify company exists
+    const { data: company, error: companyError } = await supabase
+      .from("companies")
+      .select("id, name")
+      .eq("id", companyId)
+      .single()
+
+    if (companyError || !company) {
+      return NextResponse.json(
+        { error: "Empresa nao encontrada" },
+        { status: 404 }
+      )
+    }
+
+    // Hash password
+    const passwordHash = await bcrypt.hash(password, 10)
 
     // Create user
     const { data: newUser, error: insertError } = await supabase
@@ -64,13 +98,14 @@ export async function POST(request: NextRequest) {
       .insert({
         full_name: fullName.trim(),
         email: email.toLowerCase().trim(),
-        company: company.trim(),
-        department: department.trim(),
+        password_hash: passwordHash,
         birth_date: birthDate,
-        accepted_terms: acceptedTerms,
-        role: "colaborador",
+        company_id: companyId,
+        department_id: departmentId || null,
+        role: role || "colaborador",
         xp: 0,
         level: 1,
+        is_active: true,
       })
       .select()
       .single()
@@ -89,8 +124,8 @@ export async function POST(request: NextRequest) {
         id: newUser.id,
         fullName: newUser.full_name,
         email: newUser.email,
-        company: newUser.company,
-        department: newUser.department,
+        companyId: newUser.company_id,
+        role: newUser.role,
       },
       message: "Conta criada com sucesso!",
     })
