@@ -24,7 +24,6 @@ export default function LoginPage() {
     setError("")
     setLoading(true)
 
-    // Simulate network delay
     await new Promise((r) => setTimeout(r, 600))
 
     const user = authenticateUser(email, password)
@@ -35,14 +34,12 @@ export default function LoginPage() {
       return
     }
 
-    // Store user info for the dashboard stub
     localStorage.setItem("levelcorp_user", JSON.stringify(user))
     router.push("/dashboard")
   }
 
   return (
     <div className="flex min-h-screen">
-      {/* Left: Form */}
       <div className="flex flex-1 flex-col items-center justify-center px-4 py-12">
         <div className="absolute right-4 top-4">
           <ThemeToggle />
@@ -151,7 +148,6 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          {/* Link para criar conta */}
           <p className="mt-6 text-center text-sm text-muted-foreground">
             Nao tem uma conta?{" "}
             <Link href="/registro" className="font-medium text-primary hover:underline">
@@ -159,7 +155,6 @@ export default function LoginPage() {
             </Link>
           </p>
 
-          {/* Demo credentials */}
           <div className="mt-6 rounded-xl border border-border/50 bg-card p-4">
             <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Contas de demonstracao
@@ -192,7 +187,6 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Right: Visual panel (hidden on mobile) */}
       <div className="relative hidden flex-1 items-center justify-center overflow-hidden bg-card lg:flex">
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/5 blur-3xl" />
