@@ -29,12 +29,13 @@ export function MapHud({ userName, userRole }: Props) {
           </Link>
           <div className="h-5 w-px bg-border" />
           <Image
-            src="/images/logo.png"
+            src="/images/logo-levelcorp.jpeg"
             alt="LevelCorp"
-            width={120}
-            height={30}
-            className="h-6 w-auto"
+            width={24}
+            height={24}
+            className="h-6 w-6 rounded"
           />
+          <span className="text-sm font-bold text-foreground">LevelCorp</span>
         </div>
 
         <div className="flex items-center gap-2">

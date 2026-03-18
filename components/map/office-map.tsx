@@ -8,6 +8,16 @@ import {
   type NPC, type Room, type DeptPerformance,
 } from "@/lib/map-data"
 
+export interface RemotePlayer {
+  odijfoiasjdfois: string
+  name: string
+  initials: string
+  role: "colaborador" | "gestor" | "ceo"
+  x: number
+  y: number
+  color: string
+}
+
 interface Props {
   playerName: string
   playerInitials: string
@@ -16,6 +26,9 @@ interface Props {
   startTileY?: number
   onNpcProximity?: (npc: NPC | null) => void
   onEnterChat?: (npc: NPC) => void
+  remotePlayers?: RemotePlayer[]
+  onPositionChange?: (x: number, y: number) => void
+  showNpcs?: boolean // Controls whether NPCs are shown (true for demo, false for real companies)
 }
 
 // ── Performance glow colors ──
@@ -45,7 +58,7 @@ const speechSnippets: Record<string, string[]> = {
   "fin_mgr": ["Conciliacao ok!", "Budget aprovado!", "ROI positivo!"],
 }
 
-export function OfficeMap({ playerName, playerInitials, playerRole, startTileX = 10, startTileY = 2, onNpcProximity, onEnterChat }: Props) {
+export function OfficeMap({ playerName, playerInitials, playerRole, startTileX = 10, startTileY = 2, onNpcProximity, onEnterChat, remotePlayers = [], onPositionChange, showNpcs = true }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const wrapRef = useRef<HTMLDivElement>(null)
   const { resolvedTheme } = useTheme()
@@ -315,6 +328,72 @@ export function OfficeMap({ playerName, playerInitials, playerRole, startTileX =
     }
   }, [dark])
 
+  const drawRemotePlayers = useCallback((ctx: CanvasRenderingContext2D, ox: number, oy: number, time: number) => {
+    for (const player of remotePlayers) {
+      const px = player.x * TILE - ox + TILE / 2
+      const py = player.y * TILE - oy + TILE / 2
+      const bob = Math.sin(time * 0.003 + player.x * 0.5) * 1
+
+      // Shadow
+      ctx.fillStyle = "rgba(0,0,0,0.15)"
+      ctx.beginPath()
+      ctx.ellipse(px, py + 12, 10, 4, 0, 0, Math.PI * 2)
+      ctx.fill()
+
+      // Body circle
+      ctx.fillStyle = player.color
+      ctx.globalAlpha = 0.85
+      ctx.beginPath()
+      ctx.arc(px, py - 2 + bob, 12, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.globalAlpha = 1
+
+      // Border
+      ctx.strokeStyle = dark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.2)"
+      ctx.lineWidth = 1.5
+      ctx.stroke()
+
+      // Initials
+      ctx.fillStyle = "#fff"
+      ctx.font = "bold 9px 'Geist', sans-serif"
+      ctx.textAlign = "center"
+      ctx.textBaseline = "middle"
+      ctx.fillText(player.initials, px, py - 1 + bob)
+
+      // Role indicator
+      if (player.role === "ceo") {
+        ctx.fillStyle = "#EAB308"
+        ctx.beginPath()
+        ctx.moveTo(px - 5, py - 15 + bob)
+        ctx.lineTo(px - 3, py - 11 + bob)
+        ctx.lineTo(px, py - 14 + bob)
+        ctx.lineTo(px + 3, py - 11 + bob)
+        ctx.lineTo(px + 5, py - 15 + bob)
+        ctx.lineTo(px + 6, py - 9 + bob)
+        ctx.lineTo(px - 6, py - 9 + bob)
+        ctx.closePath()
+        ctx.fill()
+      } else if (player.role === "gestor") {
+        ctx.fillStyle = "#a78bfa"
+        drawStar(ctx, px + 8, py - 9 + bob, 3, 5)
+      }
+
+      // Name label
+      ctx.fillStyle = dark ? "rgba(226,232,240,0.9)" : "rgba(30,41,59,0.9)"
+      ctx.font = "bold 9px 'Geist', sans-serif"
+      ctx.fillText(player.name.split(" ")[0], px, py - 20 + bob)
+
+      // Online indicator
+      ctx.fillStyle = "#22c55e"
+      ctx.beginPath()
+      ctx.arc(px + 9, py + 4 + bob, 3, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.strokeStyle = dark ? "#1e293b" : "#fff"
+      ctx.lineWidth = 1
+      ctx.stroke()
+    }
+  }, [dark, remotePlayers])
+
   const drawPlayer = useCallback((ctx: CanvasRenderingContext2D, ox: number, oy: number, time: number) => {
     const pos = posRef.current
     const px = pos.x * TILE - ox + TILE / 2
@@ -365,9 +444,18 @@ export function OfficeMap({ playerName, playerInitials, playerRole, startTileX =
       ctx.strokeRect(mx + room.x * sx, my + room.y * sy, room.w * sx, room.h * sy)
     }
 
-    for (const npc of npcs) {
-      ctx.fillStyle = npc.isCeo ? "#EAB308" : npc.isManager ? "#8B5CF6" : "#3B82F6"
-      ctx.beginPath(); ctx.arc(mx + npc.tileX * sx, my + npc.tileY * sy, 2, 0, Math.PI * 2); ctx.fill()
+    // Only draw NPCs on minimap in demo mode
+    if (showNpcs) {
+      for (const npc of npcs) {
+        ctx.fillStyle = npc.isCeo ? "#EAB308" : npc.isManager ? "#8B5CF6" : "#3B82F6"
+        ctx.beginPath(); ctx.arc(mx + npc.tileX * sx, my + npc.tileY * sy, 2, 0, Math.PI * 2); ctx.fill()
+      }
+    }
+
+    // Draw remote players on minimap
+    for (const player of remotePlayers) {
+      ctx.fillStyle = player.role === "ceo" ? "#EAB308" : player.role === "gestor" ? "#8B5CF6" : "#3B82F6"
+      ctx.beginPath(); ctx.arc(mx + player.x * sx, my + player.y * sy, 2.5, 0, Math.PI * 2); ctx.fill()
     }
 
     const pos = posRef.current
@@ -380,7 +468,7 @@ export function OfficeMap({ playerName, playerInitials, playerRole, startTileX =
     ctx.strokeStyle = "rgba(234,179,8,0.6)"
     ctx.lineWidth = 1
     ctx.strokeRect(mx + (cam.x / TILE) * sx, my + (cam.y / TILE) * sy, (sz.w / TILE) * sx, (sz.h / TILE) * sy)
-  }, [dark])
+  }, [dark, showNpcs, remotePlayers])
 
   // ── Game loop ──
   useEffect(() => {
@@ -412,8 +500,17 @@ export function OfficeMap({ playerName, playerInitials, playerRole, startTileX =
 
       const pos = posRef.current
       const tgt = targetRef.current
+      const prevX = Math.round(pos.x)
+      const prevY = Math.round(pos.y)
       pos.x += (tgt.x - pos.x) * 0.25
       pos.y += (tgt.y - pos.y) * 0.25
+      
+      // Notify position change for multiplayer sync
+      const newX = Math.round(pos.x)
+      const newY = Math.round(pos.y)
+      if ((newX !== prevX || newY !== prevY) && onPositionChange) {
+        onPositionChange(newX, newY)
+      }
 
       const cam = camRef.current
       const targetCamX = pos.x * TILE - w / 2 + TILE / 2
@@ -423,18 +520,24 @@ export function OfficeMap({ playerName, playerInitials, playerRole, startTileX =
       cam.x = Math.max(0, Math.min(MAP_W - w, cam.x))
       cam.y = Math.max(0, Math.min(MAP_H - h, cam.y))
 
-      const near = getNpcNear(tgt.x, tgt.y, 2)
-      nearNpcRef.current = near
-      if (near) {
-        setHoveredNpc(near)
-        setPopupPos({
-          x: near.tileX * TILE - cam.x + TILE / 2,
-          y: near.tileY * TILE - cam.y - 30,
-        })
-        onNpcProximity?.(near)
+      // Only check NPC proximity in demo mode
+      if (showNpcs) {
+        const near = getNpcNear(tgt.x, tgt.y, 2)
+        nearNpcRef.current = near
+        if (near) {
+          setHoveredNpc(near)
+          setPopupPos({
+            x: near.tileX * TILE - cam.x + TILE / 2,
+            y: near.tileY * TILE - cam.y - 30,
+          })
+          onNpcProximity?.(near)
+        } else {
+          setHoveredNpc(null)
+          onNpcProximity?.(null)
+        }
       } else {
+        nearNpcRef.current = null
         setHoveredNpc(null)
-        onNpcProximity?.(null)
       }
 
       const roomsAtPlayer = rooms.find(
@@ -446,7 +549,11 @@ export function OfficeMap({ playerName, playerInitials, playerRole, startTileX =
       ctx.save()
       drawFloor(ctx, cam.x, cam.y)
       drawFurniture(ctx, cam.x, cam.y)
-      drawNpcs(ctx, cam.x, cam.y, time)
+      // Only draw NPCs in demo mode
+      if (showNpcs) {
+        drawNpcs(ctx, cam.x, cam.y, time)
+      }
+      drawRemotePlayers(ctx, cam.x, cam.y, time)
       drawPlayer(ctx, cam.x, cam.y, time)
       ctx.restore()
       drawMinimap(ctx, w, h)
@@ -456,7 +563,7 @@ export function OfficeMap({ playerName, playerInitials, playerRole, startTileX =
 
     animId = requestAnimationFrame(loop)
     return () => cancelAnimationFrame(animId)
-  }, [drawFloor, drawFurniture, drawNpcs, drawPlayer, drawMinimap, onNpcProximity])
+  }, [drawFloor, drawFurniture, drawNpcs, drawRemotePlayers, drawPlayer, drawMinimap, onNpcProximity, onPositionChange, showNpcs])
 
   return (
     <div ref={wrapRef} className="relative h-full w-full overflow-hidden bg-background" tabIndex={0}>
